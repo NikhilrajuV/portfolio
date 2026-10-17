@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'REPLACE_WITH_YOUR_ADMIN_EMAIL'
+        ];
+    }
+
+    // Public website content is readable by visitors; only verified allow-listed admins can write.
+    match /portfolio/public {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
